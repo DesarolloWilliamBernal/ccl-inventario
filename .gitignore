@@ -1,0 +1,21 @@
+# ---- .NET / Backend ----
+[Bb]in/
+[Oo]bj/
+*.user
+
+# Base de datos SQLite local (se genera en tiempo de ejecución)
+*.db
+*.db-shm
+*.db-wal
+
+# ---- Node / Angular / Frontend ----
+node_modules/
+dist/
+.angular/
+
+# ---- Editor / SO ----
+.vs/
+.vscode/
+*.suo
+Thumbs.db
+.DS_Store
