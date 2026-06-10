@@ -1,0 +1,140 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <h4 class="text-ccl fw-bold mb-0">Inventario de productos</h4>
+    <small class="text-muted">Estado actual del stock</small>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-secondary btn-sm" (click)="cargar()" [disabled]="cargando()">
+      Actualizar
+    </button>
+    <button class="btn btn-outline-success btn-sm" (click)="exportarCsv()" [disabled]="cargando()">
+      Exportar CSV
+    </button>
+    <a class="btn btn-outline-ccl btn-sm border-0 text-ccl" routerLink="/productos/nuevo">+ Nuevo producto</a>
+    <a class="btn btn-ccl btn-sm" routerLink="/movimiento">Registrar movimiento</a>
+  </div>
+</div>
+
+@if (mensajeExito()) {
+  <div class="alert alert-success alert-dismissible">
+    {{ mensajeExito() }}
+    <button type="button" class="btn-close" (click)="mensajeExito.set(null)" aria-label="Cerrar"></button>
+  </div>
+}
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+<!-- Dashboard: indicadores -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Productos</div>
+        <div class="fs-3 fw-bold text-ccl">{{ resumen().totalProductos }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Unidades totales</div>
+        <div class="fs-3 fw-bold text-ccl">{{ resumen().totalUnidades }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Stock bajo</div>
+        <div class="fs-3 fw-bold text-warning">{{ resumen().stockBajo }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase">Agotados</div>
+        <div class="fs-3 fw-bold text-danger">{{ resumen().agotados }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Búsqueda -->
+<div class="mb-3">
+  <input
+    type="search"
+    class="form-control"
+    placeholder="Buscar producto por nombre..."
+    [ngModel]="busqueda()"
+    (ngModelChange)="busqueda.set($event)"
+  />
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-0">
+    @if (cargando()) {
+      <div class="text-center py-5">
+        <span class="spinner-border text-ccl"></span>
+      </div>
+    } @else if (productosVisibles().length === 0) {
+      <div class="text-center text-muted py-5">No hay productos que coincidan.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-3">#</th>
+              <th scope="col" role="button" (click)="ordenarPor('nombre')">
+                Producto
+                @if (campoOrden() === 'nombre') {
+                  <span>{{ ordenAscendente() ? '▲' : '▼' }}</span>
+                }
+              </th>
+              <th scope="col" class="text-center" role="button" (click)="ordenarPor('cantidad')">
+                Cantidad
+                @if (campoOrden() === 'cantidad') {
+                  <span>{{ ordenAscendente() ? '▲' : '▼' }}</span>
+                }
+              </th>
+              <th scope="col" class="text-center">Estado</th>
+              <th scope="col" class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (producto of productosVisibles(); track producto.id) {
+              <tr>
+                <td class="ps-3 text-muted">{{ producto.id }}</td>
+                <td class="fw-semibold">{{ producto.nombre }}</td>
+                <td class="text-center">{{ producto.cantidad }}</td>
+                <td class="text-center">
+                  <span class="badge rounded-pill" [class]="claseStock(producto.cantidad)">
+                    @if (producto.cantidad === 0) {
+                      Agotado
+                    } @else if (producto.cantidad <= 20) {
+                      Stock bajo
+                    } @else {
+                      Disponible
+                    }
+                  </span>
+                </td>
+                <td class="text-end pe-3">
+                  <a
+                    class="btn btn-sm btn-outline-secondary me-1"
+                    [routerLink]="['/productos', producto.id, 'editar']"
+                    >Editar</a
+                  >
+                  <button class="btn btn-sm btn-outline-danger" (click)="eliminar(producto)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
