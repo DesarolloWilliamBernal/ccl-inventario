@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <h4 class="text-ccl fw-bold mb-0">Historial de movimientos</h4>
+    <small class="text-muted">Auditoría de entradas y salidas</small>
+  </div>
+  <div class="btn-group btn-group-sm" role="group">
+    <input type="radio" class="btn-check" id="fTodos" name="filtro" [ngModel]="filtro()" (click)="filtro.set('todos')" value="todos" />
+    <label class="btn btn-outline-secondary" for="fTodos">Todos</label>
+    <input type="radio" class="btn-check" id="fEntrada" name="filtro" [ngModel]="filtro()" (click)="filtro.set('entrada')" value="entrada" />
+    <label class="btn btn-outline-success" for="fEntrada">Entradas</label>
+    <input type="radio" class="btn-check" id="fSalida" name="filtro" [ngModel]="filtro()" (click)="filtro.set('salida')" value="salida" />
+    <label class="btn btn-outline-danger" for="fSalida">Salidas</label>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="alert alert-danger">{{ error() }}</div>
+}
+
+<div class="card shadow-sm border-0">
+  <div class="card-body p-0">
+    @if (cargando()) {
+      <div class="text-center py-5">
+        <span class="spinner-border text-ccl"></span>
+      </div>
+    } @else if (movimientosVisibles().length === 0) {
+      <div class="text-center text-muted py-5">No hay movimientos registrados.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-3">Fecha</th>
+              <th scope="col">Producto</th>
+              <th scope="col" class="text-center">Tipo</th>
+              <th scope="col" class="text-center">Cantidad</th>
+              <th scope="col" class="text-center">Stock resultante</th>
+              <th scope="col" class="pe-3">Usuario</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (mov of movimientosVisibles(); track mov.id) {
+              <tr>
+                <td class="ps-3 text-muted">{{ mov.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="fw-semibold">{{ mov.productoNombre }}</td>
+                <td class="text-center">
+                  @if (mov.tipo === 'entrada') {
+                    <span class="badge text-bg-success">↑ Entrada</span>
+                  } @else {
+                    <span class="badge text-bg-danger">↓ Salida</span>
+                  }
+                </td>
+                <td class="text-center">{{ mov.cantidad }}</td>
+                <td class="text-center">{{ mov.cantidadResultante }}</td>
+                <td class="pe-3">{{ mov.usuario }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
