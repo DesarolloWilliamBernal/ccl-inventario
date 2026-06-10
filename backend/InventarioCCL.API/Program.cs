@@ -15,9 +15,9 @@ const string CorsPolicy = "AngularApp";
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.Configure<CredencialesSettings>(builder.Configuration.GetSection(CredencialesSettings.SectionName));
 
-// --- Base de datos (SQLite ahora; cambiar a UseNpgsql para PostgreSQL en el futuro) ---
+// --- Base de datos PostgreSQL ---
 builder.Services.AddDbContext<InventarioDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // --- Servicios de aplicación ---
 builder.Services.AddScoped<IJwtService, JwtService>();

@@ -5,14 +5,38 @@ autenticados registrar entradas y salidas de productos y consultar el estado del
 
 - **Backend:** C# / .NET 9 (Minimal Hosting + Controllers) con Entity Framework Core.
 - **Frontend:** Angular 19 (standalone components) con Bootstrap 5.
-- **Base de datos:** SQLite en local (ver nota más abajo sobre PostgreSQL).
+- **Base de datos:** **PostgreSQL** (local, sin Docker), gestionada con EF Core (proveedor Npgsql).
 - **Autenticación:** JWT (Bearer Token), credenciales fijas en memoria.
 
-> **Nota sobre la base de datos:** la prueba menciona "H2", que es una base de datos del ecosistema
-> Java y no tiene proveedor para Entity Framework Core. El equivalente en .NET es **SQLite**: una BD
-> local y embebida, igual de simple. El código de EF Core queda idéntico y migrar a **PostgreSQL**
-> en el futuro es cambiar una sola línea en `Program.cs` (`UseSqlite` → `UseNpgsql`) y la cadena de
-> conexión en `appsettings.json`.
+---
+
+## Inicio rápido
+
+Tres pasos para tener todo corriendo. Necesitas **.NET 9**, **Node 18+** y **PostgreSQL** en local
+(ver [Requisitos previos](#requisitos-previos)).
+
+**1. Base de datos.** Abre `backend/InventarioCCL.API/appsettings.json` y ajusta la sección
+`ConnectionStrings` con el usuario, la contraseña y el puerto de tu PostgreSQL. **No necesitas crear
+tablas ni correr migraciones**: la base de datos, las tablas y los datos de ejemplo se crean solos al
+arrancar.
+
+**2. Backend** (una terminal):
+```bash
+cd backend/InventarioCCL.API
+dotnet run
+```
+Queda la API en **http://localhost:5273** y Swagger en **http://localhost:5273/swagger**.
+
+**3. Frontend** (otra terminal):
+```bash
+cd frontend/ccl-inventory-app
+npm install
+npm start
+```
+Queda la app en **http://localhost:4200**; inicia sesión con **admin** / **Admin123!**.
+
+> El detalle de cada paso está más abajo. Si algo de la conexión a la base de datos no funciona,
+> revisa la [sección de Backend](#backend) (suele ser solo ajustar usuario/contraseña/puerto).
 
 ---
 
@@ -25,56 +49,106 @@ productos y consulten el inventario de la empresa CCL.
 
 | Requisito                                                            | Estado |
 | ------------------------------------------------------------------- | ------ |
-| Autenticación con JWT (Bearer Token)                                | ✅     |
-| Proteger los endpoints (solo usuarios autenticados)                 | ✅     |
-| `POST /auth/login` (credenciales fijas en memoria)                  | ✅     |
-| `POST /productos/movimiento` (registrar entrada/salida)             | ✅     |
-| `GET /productos/inventario` (consultar inventario)                  | ✅     |
-| 1 tabla `productos` (id, nombre, cantidad)                          | ✅     |
-| Datos iniciales cargados manualmente (sin migraciones complejas)    | ✅     |
-| CRUD con Entity Framework Core                                       | ✅     |
-| Sin procedimientos almacenados, sin Docker, config. local           | ✅     |
+| Autenticación con JWT (Bearer Token)                                | Sí     |
+| Proteger los endpoints (solo usuarios autenticados)                 | Sí     |
+| `POST /auth/login` (credenciales fijas en memoria)                  | Sí     |
+| `POST /productos/movimiento` (registrar entrada/salida)             | Sí     |
+| `GET /productos/inventario` (consultar inventario)                  | Sí     |
+| 1 tabla `productos` (id, nombre, cantidad)                          | Sí     |
+| Datos iniciales cargados manualmente (sin migraciones complejas)    | Sí     |
+| CRUD con Entity Framework Core                                       | Sí     |
+| Sin procedimientos almacenados, sin Docker, config. local           | Sí     |
 
-> La prueba pide **PostgreSQL**; en local se usa **SQLite** (equivalente embebido). El cambio a
-> PostgreSQL es de una sola línea — ver la sección final. La BD trae una tabla extra `movimientos`
-> para el historial de auditoría (extra, ver abajo).
+> Base de datos **PostgreSQL** local (sin Docker), tal como pide la prueba. El esquema y los datos
+> iniciales se crean automáticamente al arrancar con `EnsureCreated()` (sin migraciones). La BD trae
+> una tabla extra `movimientos` para el historial de auditoría (extra, ver abajo).
 
 **Frontend — Angular (v19) con TypeScript**
 
 | Requisito                                                       | Estado |
 | --------------------------------------------------------------- | ------ |
-| Login básico con JWT (sin registro ni recuperación)             | ✅     |
-| Pantalla para registrar movimiento (entrada/salida)             | ✅     |
-| Pantalla para consultar el inventario (productos y cantidades)  | ✅     |
-| Validaciones básicas en formularios (campos obligatorios)       | ✅     |
+| Login básico con JWT (sin registro ni recuperación)             | Sí     |
+| Pantalla para registrar movimiento (entrada/salida)             | Sí     |
+| Pantalla para consultar el inventario (productos y cantidades)  | Sí     |
+| Validaciones básicas en formularios (campos obligatorios)       | Sí     |
 
 **Entrega**
 
 | Requisito                                                       | Estado |
 | --------------------------------------------------------------- | ------ |
-| Código en GitHub con commits descriptivos por etapa            | ✅     |
-| Instrucciones en un `README.md` para correr en local            | ✅ (este archivo) |
+| Código en GitHub con commits descriptivos por etapa            | Sí     |
+| Instrucciones en un `README.md` para correr en local            | Sí (este archivo) |
 
-### Extras implementados (más allá del mínimo)
+### Valor agregado (más allá del mínimo pedido)
 
-- **CRUD completo de productos** (crear, editar y eliminar) desde la API y la interfaz.
-- **Historial de movimientos** con auditoría (fecha, tipo, cantidad, stock resultante y usuario).
-- **Dashboard** con indicadores, **búsqueda** y **ordenamiento** en el inventario.
+Funcionalidades incluidas que no eran obligatorias pero aportan a la solución:
+
+- **CRUD completo de productos** (crear, editar y eliminar), tanto en la API como en la interfaz.
+- **Historial de movimientos con auditoría**: cada entrada/salida queda registrada con fecha, tipo,
+  cantidad, stock resultante y usuario que la realizó.
+- **Dashboard de indicadores** en el inventario (totales, stock bajo, agotados) con **búsqueda** y
+  **ordenamiento**.
 - **Exportación del inventario a CSV**.
-- **Swagger UI** con autorización por token JWT.
-- **Guard** de rutas, **interceptor** de JWT y cierre de sesión automático ante un `401`.
+- **Validación de stock** en backend: una salida mayor al disponible se rechaza con `400`.
+- **Swagger UI** con botón *Authorize* para probar los endpoints protegidos con el token JWT.
+- **Seguridad en el frontend**: *guard* de rutas, *interceptor* que adjunta el token y cierre de
+  sesión automático cuando la API responde `401`.
+- **Creación automática de la base de datos y datos de ejemplo** al primer arranque, sin migraciones
+  ni scripts manuales.
 
 ---
 
 ## Requisitos previos
 
 - [.NET SDK 9](https://dotnet.microsoft.com/download)
+- [PostgreSQL 14+](https://www.postgresql.org/download/) corriendo en local. La aplicación no se
+  ejecuta en Docker; cómo levantes tú el servidor de PostgreSQL (instalación nativa o un contenedor)
+  es indiferente, solo necesita ser accesible en `localhost`.
 - [Node.js 18+](https://nodejs.org/) y npm
 - Angular CLI (opcional): `npm install -g @angular/cli`
 
 ---
 
 ## Backend
+
+### 1. Configurar la base de datos PostgreSQL
+
+La aplicación se conecta a PostgreSQL mediante la cadena de conexión definida en
+`backend/InventarioCCL.API/appsettings.json`:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Host=localhost;Port=5432;Database=inventario_ccl;Username=postgres;Password=postgres"
+}
+```
+
+Parámetros de la cadena de conexión:
+
+| Parámetro  | Valor por defecto | Descripción                                                        |
+| ---------- | ----------------- | ------------------------------------------------------------------ |
+| `Host`     | `localhost`       | Servidor de PostgreSQL.                                             |
+| `Port`     | `5432`            | Puerto de PostgreSQL (el estándar de la instalación).              |
+| `Database` | `inventario_ccl`  | Nombre de la base de datos (se crea sola, ver abajo).             |
+| `Username` | `postgres`        | Usuario de PostgreSQL.                                              |
+| `Password` | `postgres`        | Contraseña del usuario.                                             |
+
+> **Ajusta `Username`, `Password` y `Port`** a los de tu instalación local de PostgreSQL antes de
+> arrancar. No necesitas crear la base de datos a mano: al iniciar, EF Core ejecuta
+> `EnsureCreated()` y crea la base `inventario_ccl`, las tablas `productos` y `movimientos`, y carga
+> los **5 productos iniciales** (sin migraciones). Si tu usuario no tiene permiso para crear bases de
+> datos, créala una vez manualmente: `createdb -U postgres inventario_ccl` (o `CREATE DATABASE
+> inventario_ccl;` desde `psql`/pgAdmin) y vuelve a arrancar.
+
+> **¿Prefieres no modificar `appsettings.json`?** Puedes sobreescribir solo la cadena de conexión sin
+> tocar el archivo, con una variable de entorno antes de `dotnet run`:
+> ```bash
+> # Linux/macOS
+> export ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=inventario_ccl;Username=TU_USUARIO;Password=TU_CLAVE"
+> # Windows (PowerShell)
+> $env:ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=inventario_ccl;Username=TU_USUARIO;Password=TU_CLAVE"
+> ```
+
+### 2. Ejecutar la API
 
 ```bash
 cd backend/InventarioCCL.API
@@ -83,13 +157,20 @@ dotnet run
 ```
 
 - API disponible en **http://localhost:5273** (perfil `http`).
-- Al arrancar crea automáticamente la base de datos `inventario.db` (SQLite) y carga los
-  datos iniciales (5 productos). No se requieren migraciones.
 - **Swagger UI** (solo en Development): **http://localhost:5273/swagger** — permite probar los
   endpoints y autorizar con el token JWT (botón *Authorize*).
 
-> Si ya tenías una `inventario.db` de una versión anterior, bórrala para que se regenere con la
-> tabla de historial de movimientos.
+### 3. Verificar que funciona
+
+La forma más rápida es desde **Swagger**: ejecuta `POST /auth/login` con el usuario `admin` /
+`Admin123!`, copia el `token` de la respuesta, pulsa *Authorize*, pégalo y prueba
+`GET /productos/inventario` (debe devolver los 5 productos). También puedes hacerlo por consola:
+
+```bash
+curl -X POST http://localhost:5273/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"usuario\":\"admin\",\"password\":\"Admin123!\"}"
+```
 
 ### Credenciales (fijas en memoria, configuradas en `appsettings.json`)
 
@@ -203,17 +284,19 @@ src/app/
 ## Estructura del repositorio
 
 ```
-ccl-inventory/
-├── backend/InventarioCCL.API/   # API .NET 9 + EF Core
-└── frontend/ccl-inventory-app/  # SPA Angular 19 + Bootstrap
+ccl-inventario/
+├── backend/InventarioCCL.API/    # API .NET 9 + EF Core (PostgreSQL/Npgsql)
+└── frontend/ccl-inventory-app/   # SPA Angular 19 + Bootstrap
 ```
 
 ---
 
-## Migrar a PostgreSQL (futuro)
+## Notas sobre la base de datos
 
-1. Añadir el paquete: `dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL`.
-2. En `Program.cs` cambiar `options.UseSqlite(...)` por `options.UseNpgsql(...)`.
-3. Actualizar `ConnectionStrings:DefaultConnection` en `appsettings.json`.
-
-El modelo, el `DbContext` y los controladores no requieren cambios.
+- El esquema y los datos iniciales viven en `InventarioDbContext.OnModelCreating` (configuración de
+  entidades + `HasData` con los 5 productos). Al arrancar, `EnsureCreated()` crea todo; **no hay
+  migraciones** (tal como pide la prueba).
+- Si cambias el esquema o los datos iniciales, elimina la base `inventario_ccl` (`dropdb -U postgres
+  inventario_ccl` o `DROP DATABASE inventario_ccl;`) para que se regenere al siguiente arranque.
+- El proveedor es **Npgsql** (`UseNpgsql` en `Program.cs`). El modelo, el `DbContext` y los
+  controladores son agnósticos del motor.

@@ -13,6 +13,13 @@ node_modules/
 dist/
 .angular/
 
+# ---- Configuracion local con secretos (no versionar) ----
+appsettings.Development.json
+
+# ---- Claude Code (no versionar) ----
+CLAUDE.md
+.claude/
+
 # ---- Editor / SO ----
 .vs/
 .vscode/
