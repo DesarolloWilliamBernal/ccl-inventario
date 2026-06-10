@@ -1,0 +1,39 @@
+/* Estilos globales — paleta corporativa Activos CCL */
+:root {
+  --ccl-primary: #0d3b66;
+  --ccl-primary-dark: #082544;
+  --ccl-accent: #f4a91f;
+  --ccl-bg: #f5f7fa;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--ccl-bg);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.btn-ccl {
+  background-color: var(--ccl-primary);
+  border-color: var(--ccl-primary);
+  color: #fff;
+}
+
+.btn-ccl:hover,
+.btn-ccl:focus {
+  background-color: var(--ccl-primary-dark);
+  border-color: var(--ccl-primary-dark);
+  color: #fff;
+}
+
+.text-ccl {
+  color: var(--ccl-primary) !important;
+}
+
+.bg-ccl {
+  background-color: var(--ccl-primary) !important;
+}
