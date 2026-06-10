@@ -1,0 +1,63 @@
+<div class="mb-3">
+  <h4 class="text-ccl fw-bold mb-0">{{ esEdicion ? 'Editar producto' : 'Nuevo producto' }}</h4>
+  <small class="text-muted">
+    {{ esEdicion ? 'Modifique los datos del producto' : 'Registre un nuevo producto en el inventario' }}
+  </small>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        @if (error()) {
+          <div class="alert alert-danger py-2">{{ error() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="mb-3">
+            <label for="nombre" class="form-label fw-semibold">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              [class.is-invalid]="esInvalido('nombre')"
+              placeholder="Ej. Laptop Dell Latitude"
+            />
+            @if (esInvalido('nombre')) {
+              <div class="invalid-feedback">El nombre es obligatorio (máx. 150 caracteres).</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="cantidad" class="form-label fw-semibold">Cantidad</label>
+            <input
+              id="cantidad"
+              type="number"
+              min="0"
+              class="form-control"
+              formControlName="cantidad"
+              [class.is-invalid]="esInvalido('cantidad')"
+            />
+            @if (esInvalido('cantidad')) {
+              <div class="invalid-feedback">Ingrese una cantidad válida (0 o mayor).</div>
+            }
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-ccl fw-semibold" [disabled]="guardando()">
+              @if (guardando()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>Guardando...
+              } @else {
+                {{ esEdicion ? 'Guardar cambios' : 'Crear producto' }}
+              }
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
