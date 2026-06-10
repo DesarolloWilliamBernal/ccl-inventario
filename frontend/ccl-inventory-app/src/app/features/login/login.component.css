@@ -1,0 +1,30 @@
+.login-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--ccl-primary) 0%, var(--ccl-primary-dark) 100%);
+  padding: 1rem;
+}
+
+.login-card {
+  max-width: 820px;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.login-brand {
+  background: linear-gradient(160deg, var(--ccl-primary) 0%, var(--ccl-primary-dark) 100%);
+}
+
+.brand-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background-color: var(--ccl-accent);
+  color: var(--ccl-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}

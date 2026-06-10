@@ -1,0 +1,68 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center">
+  <div class="card login-card shadow-lg border-0">
+    <div class="row g-0">
+      <!-- Panel de marca -->
+      <div class="col-md-5 login-brand d-none d-md-flex flex-column justify-content-center text-white p-4">
+        <div class="brand-badge mb-3">CCL</div>
+        <h2 class="fw-bold mb-2">Activos CCL</h2>
+        <p class="mb-0 opacity-75">Sistema de Gestión de Inventario</p>
+        <hr class="my-4 opacity-50" />
+        <p class="small opacity-75 mb-0">
+          Controle entradas y salidas de productos y consulte el inventario en tiempo real.
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <div class="col-md-7 p-4 p-md-5">
+        <h3 class="text-ccl fw-bold mb-1">Iniciar sesión</h3>
+        <p class="text-muted mb-4">Ingrese sus credenciales para continuar</p>
+
+        @if (errorMensaje()) {
+          <div class="alert alert-danger py-2" role="alert">{{ errorMensaje() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="mb-3">
+            <label for="usuario" class="form-label fw-semibold">Usuario</label>
+            <input
+              id="usuario"
+              type="text"
+              class="form-control"
+              formControlName="usuario"
+              [class.is-invalid]="esInvalido('usuario')"
+              placeholder="admin"
+              autocomplete="username"
+            />
+            @if (esInvalido('usuario')) {
+              <div class="invalid-feedback">El usuario es obligatorio.</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label fw-semibold">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              class="form-control"
+              formControlName="password"
+              [class.is-invalid]="esInvalido('password')"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+            @if (esInvalido('password')) {
+              <div class="invalid-feedback">La contraseña es obligatoria.</div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-ccl w-100 py-2 fw-semibold" [disabled]="cargando()">
+            @if (cargando()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>Ingresando...
+            } @else {
+              Ingresar
+            }
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
