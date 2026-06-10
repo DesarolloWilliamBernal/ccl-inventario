@@ -1,0 +1,30 @@
+@host = http://localhost:5273
+
+### Iniciar sesión y obtener el token
+# @name login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "password": "Admin123!"
+}
+
+### Consultar el inventario
+GET {{host}}/productos/inventario
+Authorization: Bearer {{login.response.body.token}}
+
+### Registrar un movimiento (entrada o salida)
+POST {{host}}/productos/movimiento
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "tipo": "salida",
+  "cantidad": 5
+}
+
+### Consultar el historial de movimientos
+GET {{host}}/movimientos
+Authorization: Bearer {{login.response.body.token}}
