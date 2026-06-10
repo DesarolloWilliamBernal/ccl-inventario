@@ -1,0 +1,86 @@
+<div class="mb-3">
+  <h4 class="text-ccl fw-bold mb-0">Registrar movimiento</h4>
+  <small class="text-muted">Registre una entrada o salida de productos</small>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        @if (error()) {
+          <div class="alert alert-danger py-2">{{ error() }}</div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="mb-3">
+            <label for="productoId" class="form-label fw-semibold">Producto</label>
+            <select
+              id="productoId"
+              class="form-select"
+              formControlName="productoId"
+              [class.is-invalid]="esInvalido('productoId')"
+            >
+              <option [ngValue]="null" disabled>Seleccione un producto...</option>
+              @for (producto of productos(); track producto.id) {
+                <option [ngValue]="producto.id">
+                  {{ producto.nombre }} (stock: {{ producto.cantidad }})
+                </option>
+              }
+            </select>
+            @if (esInvalido('productoId')) {
+              <div class="invalid-feedback">Debe seleccionar un producto.</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold d-block">Tipo de movimiento</label>
+            <div class="btn-group w-100" role="group">
+              <input
+                type="radio"
+                class="btn-check"
+                id="tipoEntrada"
+                value="entrada"
+                formControlName="tipo"
+              />
+              <label class="btn btn-outline-success" for="tipoEntrada">↑ Entrada</label>
+
+              <input
+                type="radio"
+                class="btn-check"
+                id="tipoSalida"
+                value="salida"
+                formControlName="tipo"
+              />
+              <label class="btn btn-outline-danger" for="tipoSalida">↓ Salida</label>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="cantidad" class="form-label fw-semibold">Cantidad</label>
+            <input
+              id="cantidad"
+              type="number"
+              min="1"
+              class="form-control"
+              formControlName="cantidad"
+              [class.is-invalid]="esInvalido('cantidad')"
+            />
+            @if (esInvalido('cantidad')) {
+              <div class="invalid-feedback">Ingrese una cantidad válida (mínimo 1).</div>
+            }
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-ccl fw-semibold" [disabled]="enviando()">
+              @if (enviando()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>Registrando...
+              } @else {
+                Registrar movimiento
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
